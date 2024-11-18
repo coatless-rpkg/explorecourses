@@ -7,7 +7,7 @@
 fetch_departments(cache_dir = NULL)
 }
 \arguments{
-\item{cache_dir}{Directory to cache results}
+\item{cache_dir}{Base cache directory}
 }
 \value{
 A data frame containing department information

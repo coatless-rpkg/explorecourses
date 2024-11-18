@@ -14,14 +14,16 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Imports: 
     httr2,
-    jsonlite,
     xml2,
     dplyr,
-    fs,
-    glue,
+    jsonlite,
     purrr,
-    readr,
-    tibble
+    glue,
+    fs,
+    tibble,
+    future.apply,
+    progressr,
+    readr
 Collate: 
     'cache.R'
     'constants.R'

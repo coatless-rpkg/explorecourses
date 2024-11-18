@@ -2,18 +2,26 @@
 % Please edit documentation in R/fetch.R
 \name{fetch_department_courses}
 \alias{fetch_department_courses}
-\title{Fetch courses for a specific department}
+\title{Fetch courses for a specific department with progress reporting}
 \usage{
-fetch_department_courses(name, cache_dir = NULL)
+fetch_department_courses(name, cache_dir = NULL, p = NULL)
+
+fetch_department_courses(name, cache_dir = NULL, p = NULL)
 }
 \arguments{
 \item{name}{Department code}
 
-\item{cache_dir}{Directory to cache results}
+\item{cache_dir}{Base cache directory}
+
+\item{p}{Progress handler}
 }
 \value{
-XML content of courses
+Data frame of parsed course information
+
+Data frame of parsed course information
 }
 \description{
-Fetch courses for a specific department
+Fetch courses for a specific department with progress reporting
+
+Fetch courses for a specific department with progress reporting
 }

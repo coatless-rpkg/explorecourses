@@ -2,18 +2,18 @@
 % Please edit documentation in R/fetch.R
 \name{fetch_all_courses}
 \alias{fetch_all_courses}
-\title{Fetch and process courses for multiple departments}
+\title{Fetch and process courses for multiple departments in parallel}
 \usage{
 fetch_all_courses(departments = NULL, cache_dir = NULL)
 }
 \arguments{
 \item{departments}{Character vector of department codes}
 
-\item{cache_dir}{Directory to cache results}
+\item{cache_dir}{Base cache directory}
 }
 \value{
-A list of data frames containing course information
+A data frame containing course information
 }
 \description{
-Fetch and process courses for multiple departments
+Fetch and process courses for multiple departments in parallel
 }

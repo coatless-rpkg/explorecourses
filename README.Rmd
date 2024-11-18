@@ -40,7 +40,8 @@ remotes::remotes("coatless-rpkg/explorecourses")
 
 First, load the package:
 
-```r
+```{r}
+#| eval: false
 library(explorecourses)
 ```
 
@@ -53,7 +54,8 @@ The package contains three main functions:
 By default, we'll retrieve all courses across all departments for the current
 academic year using:
 
-```r
+```{r}
+#| eval: false
 all_courses <- fetch_all_courses()
 ```
 
@@ -62,15 +64,20 @@ This information is stored in the `schedule_ay24_25` data frame.
 For just a single department, we can use it's code to retrieve a list of all
 classes:
 
-```r
+```{r}
+#| eval: false
 department_courses <- fetch_department_courses("STATS")
 ```
 
 To determine possible department shortcodes, we can use:
 
-```r
+```{r}
+#| eval: false
 departments <- fetch_departments()
 ```
+
+This will return a data frame with the department short name, long name, and school
+the department is associated with.
 
 ## License
 

@@ -65,6 +65,9 @@ To determine possible department shortcodes, we can use:
 departments <- fetch_departments()
 ```
 
+This will return a data frame with the department short name, long name,
+and school the department is associated with.
+
 ## License
 
 AGPL (\>= 3)

@@ -1,6 +1,6 @@
 #' Fetch department list from Stanford ExploreCourses
 #'
-#' @param cache_dir Directory to cache results
+#' @param cache_dir Base cache directory
 #' @return A data frame containing department information
 #' @export
 #' @include constants.R
@@ -28,24 +28,23 @@ fetch_departments <- function(cache_dir = NULL) {
   })
 
   if (!is.null(cache_dir)) {
-    fs::dir_create(cache_dir)
-    jsonlite::write_json(
-      departments,
-      fs::path(cache_dir, "departments.json"),
-      pretty = TRUE
-    )
+    write_json_cache(departments, cache_dir, "departments")
   }
 
   departments
 }
 
-#' Fetch courses for a specific department
+
+#' Fetch courses for a specific department with progress reporting
 #'
 #' @param name Department code
-#' @param cache_dir Directory to cache results
-#' @return XML content of courses
+#' @param cache_dir Base cache directory
+#' @param p Progress handler
+#' @return Data frame of parsed course information
 #' @export
-fetch_department_courses <- function(name, cache_dir = NULL) {
+fetch_department_courses <- function(name, cache_dir = NULL, p = NULL) {
+  if (!is.null(p)) p(message = sprintf("Fetching %s", name))
+
   url <- glue::glue(COURSE_ENDPOINT, name = name)
 
   req <- httr2::request(url) |>
@@ -54,17 +53,48 @@ fetch_department_courses <- function(name, cache_dir = NULL) {
   content <- httr2::resp_body_string(req)
 
   if (!is.null(cache_dir)) {
-    fs::dir_create(cache_dir)
-
-    xml_path <- fs::path(cache_dir, paste0(name, ".xml"))
-    readr::write_file(content, xml_path)
+    write_xml_cache(content, cache_dir, name)
   }
 
-
+  # Parse XML directly to data frame
   courses <- parse_courses(content)
   courses$department <- name
 
   courses
+}
+
+#' Process a single department
+#'
+#' @param name Department code
+#' @param cache_dir Base cache directory
+#' @param p Progress handler
+#' @return Data frame of parsed course information
+#' @keywords internal
+process_department <- function(name, cache_dir = NULL, p = NULL) {
+  if (!is.null(p)) p(message = sprintf("Fetching %s", name))
+
+  url <- glue::glue(COURSE_ENDPOINT, name = name)
+
+  # Try to fetch and parse the data
+  tryCatch({
+    req <- httr2::request(url) |>
+      httr2::req_perform()
+
+    content <- httr2::resp_body_string(req)
+
+    if (!is.null(cache_dir)) {
+      write_xml_cache(content, cache_dir, name)
+    }
+
+    # Parse XML directly to data frame
+    courses <- parse_courses(content)
+    courses$department <- name
+
+    courses
+  }, error = function(e) {
+    warning(sprintf("Error processing department %s: %s", name, e$message))
+    NULL
+  })
 }
 
 #' Parse course XML into a data frame
@@ -142,20 +172,38 @@ parse_courses <- function(xml_content) {
   course_data
 }
 
-#' Fetch and process courses for multiple departments
+#' Fetch courses for a specific department with progress reporting
+#'
+#' @param name Department code
+#' @param cache_dir Base cache directory
+#' @param p Progress handler
+#' @return Data frame of parsed course information
+#' @export
+fetch_department_courses <- function(name, cache_dir = NULL, p = NULL) {
+  process_department(name, cache_dir, p)
+}
+
+#' Fetch and process courses for multiple departments in parallel
 #'
 #' @param departments Character vector of department codes
-#' @param cache_dir Directory to cache results
-#' @return A list of data frames containing course information
+#' @param cache_dir Base cache directory
+#' @return A data frame containing course information
 #' @export
 fetch_all_courses <- function(departments = NULL, cache_dir = NULL) {
   if (is.null(departments)) {
     departments <- fetch_departments(cache_dir)$name
   }
 
-  purrr::map_dfr(departments, function(dept) {
-    message("Fetching department: ", dept)
-    courses <- fetch_department_courses(dept, cache_dir)
-    courses
-  })
+  p <- progressr::progressor(steps = length(departments))
+
+  results <- future.apply::future_lapply(
+    departments,
+    fetch_department_courses,
+    cache_dir = cache_dir,
+    p = p,
+    future.seed = TRUE
+  )
+
+  # Combine results
+  dplyr::bind_rows(results)
 }

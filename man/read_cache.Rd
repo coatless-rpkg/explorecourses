@@ -7,7 +7,7 @@
 read_cache(cache_dir, dept = NULL)
 }
 \arguments{
-\item{cache_dir}{Directory containing cached files}
+\item{cache_dir}{Base cache directory}
 
 \item{dept}{Department code (optional)}
 }
