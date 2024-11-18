@@ -60,7 +60,11 @@ fetch_department_courses <- function(name, cache_dir = NULL) {
     readr::write_file(content, xml_path)
   }
 
-  content
+
+  courses <- parse_courses(content)
+  courses$department <- name
+
+  courses
 }
 
 #' Parse course XML into a data frame
@@ -151,9 +155,7 @@ fetch_all_courses <- function(departments = NULL, cache_dir = NULL) {
 
   purrr::map_dfr(departments, function(dept) {
     message("Fetching department: ", dept)
-    xml_content <- fetch_department_courses(dept, cache_dir)
-    courses <- parse_courses(xml_content)
-    courses$department <- dept
+    courses <- fetch_department_courses(dept, cache_dir)
     courses
   })
 }
