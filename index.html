@@ -46,7 +46,7 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="explorecourses">explorecourses<a class="anchor" aria-label="anchor" href="#explorecourses"></a>
+<div class="page-header"><h1 id="explorecourses-">explorecourses <img src="reference/figures/logo-explorecourses.png" align="right" alt="Logo: a person looking at all the courses to choose from" width="150"><a class="anchor" aria-label="anchor" href="#explorecourses-"></a>
 </h1></div>
 <!-- badges: start -->
 
@@ -54,7 +54,7 @@
 <p>[!IMPORTANT]</p>
 <p>This package is part of a homework exercise for STATS 290 regarding data mining and web APIs.</p>
 </blockquote>
-<p>The goal of explorecourses is to automatically retrieve course information from Stanford University’s ExploreCourses API.</p>
+<p>The goal of <code>explorecourses</code> is to automatically retrieve course information from Stanford University’s <a href="https://explorecourses.stanford.edu/" class="external-link">ExploreCourses</a> API.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -72,23 +72,69 @@
 <p>The package contains three main functions:</p>
 <ol style="list-style-type: decimal">
 <li>
-<code><a href="reference/fetch_all_courses.html">fetch_all_courses()</a></code>: Fetches all courses from the ExploreCourses API.</li>
-<li>
-<code><a href="reference/fetch_departments.html">fetch_departments()</a></code>: Fetches the list of departments from the ExploreCourses API.</li>
+<code><a href="reference/fetch_all_courses.html">fetch_all_courses()</a></code>: Fetches all courses from the ExploreCourses API for a set of departments (Default: all).</li>
 <li>
 <code><a href="reference/fetch_department_courses.html">fetch_department_courses()</a></code>: Fetches the courses for a specific department.</li>
+<li>
+<code><a href="reference/fetch_departments.html">fetch_departments()</a></code>: Fetches the list of departments from the ExploreCourses API.</li>
 </ol>
 <p>By default, we’ll retrieve all courses across all departments for the current academic year using:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">all_courses</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/fetch_all_courses.html">fetch_all_courses</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>This information is stored in the <code>schedule_ay24_25</code> data frame.</p>
-<p>For just a single department, we can use it’s code to retrieve a list of all classes:</p>
+<p>We can also request specific courses for a set of departments in a given academic year. For example, to retrieve all courses for the departments of “STATS” and “MATH” for the academic year 2023-2024, we can use:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">stats_and_math_courses</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/fetch_all_courses.html">fetch_all_courses</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"STATS"</span>, <span class="st">"MATH"</span><span class="op">)</span>, year <span class="op">=</span> <span class="st">"20232024"</span><span class="op">)</span></span></code></pre></div>
+<p>This function is excellent for retrieving course information across multiple departments for a given academic year as it allows for parallel processing of the data.</p>
+<p>If we know the department shortcode for a specific department, we can use the <code><a href="reference/fetch_department_courses.html">fetch_department_courses()</a></code> function to retrieve the courses for that department. This function does not support parallel processing and is designed for fetching courses for a single department. For example, to retrieve all courses for the “STATS” department, we can use:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">department_courses</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/fetch_department_courses.html">fetch_department_courses</a></span><span class="op">(</span><span class="st">"STATS"</span><span class="op">)</span></span></code></pre></div>
 <p>To determine possible department shortcodes, we can use:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">departments</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/fetch_departments.html">fetch_departments</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>This will return a data frame with the department short name, long name, and school the department is associated with.</p>
+<div class="section level3">
+<h3 id="cache">Cache<a class="anchor" aria-label="anchor" href="#cache"></a>
+</h3>
+<p>To cache the data, we can use the <code>cache_dir</code> parameter in the <code><a href="reference/fetch_all_courses.html">fetch_all_courses()</a></code>, <code><a href="reference/fetch_department_courses.html">fetch_department_courses()</a></code>, and <code><a href="reference/fetch_departments.html">fetch_departments()</a></code> functions. This will cause the XML data downloaded from the API to be stored in the specified directory and reused on subsequent calls.</p>
+<p>We can list the current cache contents using the <code><a href="reference/list_cache.html">list_cache()</a></code> function:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/list_cache.html">list_cache</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># List current cache</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Cache contents:</span></span>
+<span><span class="co"># </span></span>
+<span><span class="co"># Found 256 cached files</span></span>
+<span><span class="co"># Directory: explorecourses_cache</span></span>
+<span><span class="co"># </span></span>
+<span><span class="co"># AA ACCT AFRICAAM ALP AMELANG</span></span>
+<span><span class="co"># AMHRLANG AMSTUD ANES ANTHRO APPPHYS</span></span>
+<span><span class="co"># ARABLANG ARCHLGY ARMELANG ARTHIST ARTSINST</span></span>
+<span><span class="co"># ...</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="parallel-processing">Parallel Processing<a class="anchor" aria-label="anchor" href="#parallel-processing"></a>
+</h3>
+<p>We can speed up the process of fetching courses by using parallel processing. For the <code><a href="reference/fetch_all_courses.html">fetch_all_courses()</a></code> function, we’ve set up parallel processing using the <code>furrr</code> package, which provides <code>purrr</code>’s functional interface to the <code>future</code> parallel processing library. As a result, we will be able to download and process all courses for every department in parallel. Moreover, we’ve set up progress reporting using the <code>progressr</code> package to track the progress of the parallel processing.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/coatless-rpkg/explorecourses" class="external-link">explorecourses</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://future.futureverse.org" class="external-link">future</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://progressr.futureverse.org" class="external-link">progressr</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Set up parallel processing</span></span>
+<span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="va">multisession</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Set up progress reporting</span></span>
+<span><span class="fu"><a href="https://progressr.futureverse.org/reference/handlers.html" class="external-link">handlers</a></span><span class="op">(</span><span class="fu"><a href="https://progressr.futureverse.org/reference/handler_progress.html" class="external-link">handler_progress</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Show progress bar for fetching all courses</span></span>
+<span><span class="fu"><a href="https://progressr.futureverse.org/reference/with_progress.html" class="external-link">with_progress</a></span><span class="op">(</span><span class="op">{</span></span>
+<span>  <span class="co"># Fetch all courses for the departments in parallel</span></span>
+<span>  <span class="va">all_courses</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/fetch_all_courses.html">fetch_all_courses</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Reset to sequential processing</span></span>
+<span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="va">sequential</span><span class="op">)</span></span></code></pre></div>
+<p>Please note, we need to ensure we deactivate the <code>multisession</code> plan by resetting it to <code>sequential</code> after we’ve finished using it.</p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
