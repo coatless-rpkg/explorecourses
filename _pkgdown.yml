@@ -1,4 +1,57 @@
 url: https://r-pkg.thecoatlessprofessor.com/explorecourses/
 template:
   bootstrap: 5
+  bootswatch: cosmo
+  bslib:
+    primary: "#8C1515"  # Stanford cardinal red
+    font-size-base: 0.95rem
 
+navbar:
+  structure:
+    left:  [intro, reference, news]
+    right: [search, github]
+  components:
+    reference:
+      text: API Reference
+      href: reference/index.html
+    github:
+      icon: fab fa-github
+      aria-label: GitHub logo
+      href: https://github.com/username/explorecourses
+
+reference:
+- title: Main Functions
+  desc: Core functions for fetching course data
+  contents:
+  - fetch_departments
+  - fetch_department_courses
+  - fetch_all_courses
+
+- title: Cache Management
+  desc: Functions for managing the local cache
+  contents:
+  - starts_with("cache_")
+  - read_xml_cache
+  - clear_cache
+  - list_cache
+  - print.explorecourses_cache_list
+
+- title: Internal Functions
+  desc: Internal helper functions and utilities
+  contents:
+  - starts_with("process_")
+  - starts_with("extract_")
+  - starts_with("make_")
+  - generate_academic_year
+  - validate_academic_year
+
+home:
+  sidebar:
+    structure: [links, license, community, citation, authors, dev]
+
+footer:
+  structure:
+    left: developed_by
+    right: built_with
+  components:
+    built_with: Built with {pkgdown}
