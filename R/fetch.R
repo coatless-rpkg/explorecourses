@@ -1,209 +1,185 @@
 #' Fetch department list from Stanford ExploreCourses
 #'
-#' @param cache_dir Base cache directory
+#' @param cache_dir Base cache directory (optional)
 #' @return A data frame containing department information
 #' @export
-#' @include constants.R
 fetch_departments <- function(cache_dir = NULL) {
-  req <- httr2::request(DEPARTMENTS_ENDPOINT) |>
-    httr2::req_perform()
-
-  xml_data <- req |>
-    httr2::resp_body_string() |>
-    xml2::read_xml()
-
-  schools <- xml2::xml_find_all(xml_data, "//school")
-
-  departments <- purrr::map_dfr(schools, function(school) {
-    school_name <- xml2::xml_attr(school, "name")
-    deps <- xml2::xml_find_all(school, ".//department")
-
-    purrr::map_dfr(deps, function(dep) {
-      tibble::tibble(
-        name = xml2::xml_attr(dep, "name"),
-        longname = xml2::xml_attr(dep, "longname"),
-        school = school_name
-      )
-    })
-  })
-
-  if (!is.null(cache_dir)) {
-    write_json_cache(departments, cache_dir, "departments")
-  }
-
-  departments
-}
-
-
-#' Fetch courses for a specific department with progress reporting
-#'
-#' @param name Department code
-#' @param cache_dir Base cache directory
-#' @param p Progress handler
-#' @return Data frame of parsed course information
-#' @export
-fetch_department_courses <- function(name, cache_dir = NULL, p = NULL) {
-  if (!is.null(p)) p(message = sprintf("Fetching %s", name))
-
-  url <- glue::glue(COURSE_ENDPOINT, name = name)
-
-  req <- httr2::request(url) |>
-    httr2::req_perform()
-
-  content <- httr2::resp_body_string(req)
-
-  if (!is.null(cache_dir)) {
-    write_xml_cache(content, cache_dir, name)
-  }
-
-  # Parse XML directly to data frame
-  courses <- parse_courses(content)
-  courses$department <- name
-
-  courses
-}
-
-#' Process a single department
-#'
-#' @param name Department code
-#' @param cache_dir Base cache directory
-#' @param p Progress handler
-#' @return Data frame of parsed course information
-#' @keywords internal
-process_department <- function(name, cache_dir = NULL, p = NULL) {
-  if (!is.null(p)) p(message = sprintf("Fetching %s", name))
-
-  url <- glue::glue(COURSE_ENDPOINT, name = name)
-
-  # Try to fetch and parse the data
   tryCatch({
-    req <- httr2::request(url) |>
-      httr2::req_perform()
+    # Try to read from cache first
+    xml_content <- read_xml_cache(
+      name = "departments",
+      cache_dir = cache_dir
+    )
 
-    content <- httr2::resp_body_string(req)
+    # If cache miss, fetch from API
+    if (is.null(xml_content)) {
+      xml_content <- fetch_departments_raw()
 
-    if (!is.null(cache_dir)) {
-      write_xml_cache(content, cache_dir, name)
+      # Cache the fresh data if cache_dir is specified
+      if (!is.null(cache_dir)) {
+        write_xml_cache(
+          xml_doc = xml_content,
+          name = "departments",
+          cache_dir = cache_dir
+        )
+      }
     }
 
-    # Parse XML directly to data frame
-    courses <- parse_courses(content)
-    courses$department <- name
+    # Process the XML content
+    process_departments_xml(xml_content)
+
+  }, error = function(e) {
+    if (inherits(e, "explorecourses_error")) {
+      stop(e)
+    }
+
+    # For unexpected errors
+    cli::cli_abort(
+      c("Failed to fetch departments",
+        "x" = "{conditionMessage(e)}",
+        if (!is.null(cache_dir)) c("i" = "Cache directory: {.file {cache_dir}}")
+       )
+    )
+  })
+}
+
+
+#' Fetch courses for a specific department
+#'
+#' @param name Department code (single string)
+#' @param year Academic year in format YYYYYYYY (e.g., "20232024") or NULL for current year
+#' @param cache_dir Base cache directory (optional)
+#' @return Data frame of parsed course information
+#' @export
+fetch_department_courses <- function(name, year = NULL, cache_dir = NULL) {
+  # Input validation
+  if (length(name) > 1) {
+    cli::cli_warn(c(
+      "Multiple department codes provided",
+      "i" = "Using first code: {.val {name[1]}}",
+      "i" = "Ignoring: {.val {paste(name[-1], collapse = ', ')}}"
+    ))
+    name <- name[1]
+  }
+
+  if (is.na(name) || !is.character(name) || nchar(name) == 0) {
+    cli::cli_abort(
+      c("Invalid department code",
+        "x" = "Department code must be a non-empty string")
+    )
+  }
+
+  tryCatch({
+    # Check cache first
+    xml_content <- read_xml_cache(name, year, cache_dir)
+
+    if (is.null(xml_content)) {
+      # Fetch from API if not in cache
+      xml_content <- fetch_department_courses_raw(name, year)
+      # Cache the response
+      write_xml_cache(xml_content, name, year, cache_dir)
+    }
+
+    # Process data
+    courses <- process_courses_xml(xml_content, name)
+
+    if (is.null(courses) || nrow(courses) == 0) {
+      cli::cli_warn(c(
+        "No courses found",
+        "i" = "Department: {.val {name}}",
+        "i" = "Year: {.val {year %||% 'current'}}"
+      ))
+      return(NULL)
+    }
 
     courses
   }, error = function(e) {
-    warning(sprintf("Error processing department %s: %s", name, e$message))
-    NULL
+    cli::cli_abort(c(
+      "Failed to process department data",
+      "i" = "Department: {.val {name}}",
+      "i" = "Year: {.val {year %||% 'current'}}",
+      "x" = "Error: {conditionMessage(e)}"
+    ))
   })
-}
-
-#' Parse course XML into a data frame
-#'
-#' @param xml_content XML content from fetch_department_courses
-#' @return A list of data frames containing course information
-#' @export
-parse_courses <- function(xml_content) {
-  xml_data <- xml2::read_xml(xml_content)
-  courses <- xml2::xml_find_all(xml_data, "//course")
-
-  course_data <- purrr::map_dfr(courses, function(course) {
-    # Basic course info
-    basic_info <- tibble::tibble(
-      objectID = xml2::xml_text(xml2::xml_find_first(course, ".//courseId")),
-      year = xml2::xml_text(xml2::xml_find_first(course, ".//year")),
-      subject = xml2::xml_text(xml2::xml_find_first(course, ".//subject")),
-      code = xml2::xml_text(xml2::xml_find_first(course, ".//code")),
-      title = xml2::xml_text(xml2::xml_find_first(course, ".//title")),
-      description = xml2::xml_text(xml2::xml_find_first(course, ".//description")),
-      units_min = as.numeric(xml2::xml_text(xml2::xml_find_first(course, ".//unitsMin"))),
-      units_max = as.numeric(xml2::xml_text(xml2::xml_find_first(course, ".//unitsMax")))
-    )
-
-    # Get sections
-    sections <- xml2::xml_find_all(course, ".//section")
-    section_data <- purrr::map_dfr(sections, function(section) {
-      section_info <- tibble::tibble(
-        objectID = basic_info$objectID,
-        term = xml2::xml_text(xml2::xml_find_first(section, ".//term")),
-        term_id = xml2::xml_text(xml2::xml_find_first(section, ".//termId")),
-        section_number = xml2::xml_text(xml2::xml_find_first(section, ".//sectionNumber")),
-        component = xml2::xml_text(xml2::xml_find_first(section, ".//component")),
-        class_id = xml2::xml_text(xml2::xml_find_first(section, ".//classId")),
-        current_size = as.numeric(xml2::xml_text(xml2::xml_find_first(section, ".//currentClassSize"))),
-        max_size = as.numeric(xml2::xml_text(xml2::xml_find_first(section, ".//maxClassSize")))
-      )
-
-      # Get schedules
-      schedules <- xml2::xml_find_all(section, ".//schedule")
-      schedule_data <- purrr::map_dfr(schedules, function(schedule) {
-        tibble::tibble(
-          section_id = section_info$class_id,
-          days = xml2::xml_text(xml2::xml_find_first(schedule, ".//days")),
-          start_time = xml2::xml_text(xml2::xml_find_first(schedule, ".//startTime")),
-          end_time = xml2::xml_text(xml2::xml_find_first(schedule, ".//endTime")),
-          location = xml2::xml_text(xml2::xml_find_first(schedule, ".//location"))
-        )
-      })
-
-      # Join schedules to section
-      if (nrow(schedule_data) > 0) {
-        section_info <- dplyr::left_join(
-          section_info,
-          schedule_data,
-          by = c("class_id" = "section_id")
-        )
-      }
-
-      section_info
-    })
-
-    # Join sections to basic info
-    if (nrow(section_data) > 0) {
-      basic_info <- dplyr::left_join(
-        basic_info,
-        section_data,
-        by = "objectID"
-      )
-    }
-
-    basic_info
-  })
-
-  course_data
-}
-
-#' Fetch courses for a specific department with progress reporting
-#'
-#' @param name Department code
-#' @param cache_dir Base cache directory
-#' @param p Progress handler
-#' @return Data frame of parsed course information
-#' @export
-fetch_department_courses <- function(name, cache_dir = NULL, p = NULL) {
-  process_department(name, cache_dir, p)
 }
 
 #' Fetch and process courses for multiple departments in parallel
 #'
 #' @param departments Character vector of department codes
-#' @param cache_dir Base cache directory
+#' @param year Academic year in format YYYYYYYY (e.g., "20232024") or NULL for current year
+#' @param cache_dir Base cache directory (optional)
 #' @return A data frame containing course information
 #' @export
-fetch_all_courses <- function(departments = NULL, cache_dir = NULL) {
+fetch_all_courses <- function(departments = NULL, year = NULL, cache_dir = NULL) {
+  # Input validation
+  if (!is.null(year)) {
+    year <- validate_academic_year(year)
+  }
+
   if (is.null(departments)) {
     departments <- fetch_departments(cache_dir)$name
   }
 
+  # Ensure departments is a character vector and remove duplicates
+  departments <- unique(as.character(departments))
+
+  # Remove any NA or invalid department codes
+  departments <- departments[!is.na(departments) & nchar(departments) > 0]
+
+  # Set up progress reporting
   p <- progressr::progressor(steps = length(departments))
 
-  results <- future.apply::future_lapply(
+  # Process departments in parallel using furrr
+  results <- furrr::future_map(
     departments,
-    fetch_department_courses,
-    cache_dir = cache_dir,
-    p = p,
-    future.seed = TRUE
+    purrr::safely(function(dept) {
+      if (!is.null(p)) p(sprintf("Processing %s", dept))
+      fetch_department_courses(dept, year, cache_dir)
+    }),
+    .options = furrr::furrr_options(seed = TRUE)
   )
 
+  p("Extracting viable results...")
+
+  # Extract successful results and errors
+  successes <- purrr::map(results, "result")
+  errors <- purrr::map(results, "error")
+
+  # Report any errors
+  error_indices <- which(!purrr::map_lgl(errors, is.null))
+  if (length(error_indices) > 0) {
+    for (i in error_indices) {
+      error_obj <- errors[[i]]
+      if (inherits(error_obj, "error")) {
+        cli::cli_warn(
+          c("Error processing department",
+            "x" = "{conditionMessage(error_obj)}",
+            "i" = "Department: {.val {departments[i]}}")
+        )
+      } else {
+        cli::cli_warn(
+          c("Error processing department",
+            "x" = "Unknown error occurred",
+            "i" = "Department: {.val {departments[i]}}")
+        )
+      }
+    }
+  }
+
+  p("Merging results...")
+
+  # Keep only successful results
+  results <- purrr::compact(successes)
+
   # Combine results
-  dplyr::bind_rows(results)
+  if (length(results) > 0) {
+    final_df <- dplyr::bind_rows(results)
+    return(final_df)
+  } else {
+    cli::cli_warn(
+      c("No course data retrieved",
+        "i" = "Year: {.val {year %||% 'current'}}")
+    )
+    return(NULL)
+  }
 }

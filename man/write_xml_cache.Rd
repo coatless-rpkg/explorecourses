@@ -4,14 +4,19 @@
 \alias{write_xml_cache}
 \title{Write XML data to cache}
 \usage{
-write_xml_cache(content, cache_dir, dept)
+write_xml_cache(xml_doc, name, year = NULL, cache_dir = NULL)
 }
 \arguments{
-\item{content}{XML content}
+\item{xml_doc}{XML document (xml2 doc object)}
 
-\item{cache_dir}{Base cache directory}
+\item{name}{Base filename (e.g., department code)}
 
-\item{dept}{Department code}
+\item{year}{Optional academic year for filename suffix}
+
+\item{cache_dir}{Base cache directory (optional)}
+}
+\value{
+Invisibly returns the cache path
 }
 \description{
 Write XML data to cache

@@ -12,24 +12,25 @@ License: AGPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
-Imports: 
+Imports:
     httr2,
     xml2,
-    dplyr,
-    jsonlite,
     purrr,
+    dplyr,
+    tibble,
     glue,
     fs,
-    tibble,
-    future.apply,
-    progressr,
-    readr
+    cli,
+    furrr,
+    progressr
 Collate: 
-    'cache.R'
     'constants.R'
+    'api.R'
+    'cache.R'
     'explorecourses-package.R'
     'fetch.R'
-    'schedule.R'
+    'process.R'
+    'utils.R'
 Depends: 
     R (>= 2.10)
 LazyData: true

@@ -4,12 +4,14 @@
 \alias{fetch_all_courses}
 \title{Fetch and process courses for multiple departments in parallel}
 \usage{
-fetch_all_courses(departments = NULL, cache_dir = NULL)
+fetch_all_courses(departments = NULL, year = NULL, cache_dir = NULL)
 }
 \arguments{
 \item{departments}{Character vector of department codes}
 
-\item{cache_dir}{Base cache directory}
+\item{year}{Academic year in format YYYYYYYY (e.g., "20232024") or NULL for current year}
+
+\item{cache_dir}{Base cache directory (optional)}
 }
 \value{
 A data frame containing course information
