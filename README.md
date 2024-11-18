@@ -64,3 +64,7 @@ To determine possible department shortcodes, we can use:
 ``` r
 departments <- fetch_departments()
 ```
+
+## License
+
+AGPL (\>= 3)
