@@ -1,0 +1,31 @@
+#' Schedule Data for AY 2024-2025
+#'
+#' This dataset contains the schedule data for the academic year 2024-2025.
+#'
+#' @format A data frame with 20 columns:
+#'
+#' \describe{
+#'  \item{objectID}{Unique identifier for each course}
+#'  \item{year}{Academic year}
+#'  \item{subject}{Subject of the course}
+#'  \item{code}{Course code}
+#'  \item{title}{Course title}
+#'  \item{description}{Course description}
+#'  \item{units_min}{Minimum number of units}
+#'  \item{units_max}{Maximum number of units}
+#'  \item{term}{Term}
+#'  \item{term_id}{Term ID}
+#'  \item{section_number}{Section number}
+#'  \item{component}{Component}
+#'  \item{class_id}{Class ID}
+#'  \item{current_size}{Current class size}
+#'  \item{max_size}{Maximum class size}
+#'  \item{days}{Days of the week}
+#'  \item{start_time}{Start time}
+#'  \item{end_time}{End time}
+#'  \item{location}{Location}
+#'  \item{department}{Department}
+#'  }
+#'
+#' @source Data is from the Office of the University Registrar
+"schedule_ay24_25"
