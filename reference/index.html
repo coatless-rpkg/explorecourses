@@ -3,7 +3,7 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">explorecourses</a>
 
@@ -15,10 +15,11 @@
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+      <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">API Reference</a></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/coatless-rpkg/explorecourses/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/username/explorecourses" aria-label="GitHub logo"><span class="fa fab fa-github"></span></a></li>
       </ul></div>
 
 
@@ -31,9 +32,38 @@
     </div>
 
     <div class="section level2">
-      <h2 id="all-functions">All functions<a class="anchor" aria-label="anchor" href="#all-functions"></a></h2>
+      <h2 id="main-functions">Main Functions<a class="anchor" aria-label="anchor" href="#main-functions"></a></h2>
+
+      <div class="section-desc"><p>Core functions for fetching course data</p></div>
 
 
+    </div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="fetch_departments.html">fetch_departments()</a></code>
+
+        </dt>
+        <dd>Fetch department list from Stanford ExploreCourses</dd>
+      </dl><dl><dt>
+
+          <code><a href="fetch_department_courses.html">fetch_department_courses()</a></code>
+
+        </dt>
+        <dd>Fetch courses for a specific department</dd>
+      </dl><dl><dt>
+
+          <code><a href="fetch_all_courses.html">fetch_all_courses()</a></code>
+
+        </dt>
+        <dd>Fetch and process courses for multiple departments in parallel</dd>
+      </dl></div><div class="section level2">
+      <h2 id="cache-management">Cache Management<a class="anchor" aria-label="anchor" href="#cache-management"></a></h2>
+
+      <div class="section-desc"><p>Functions for managing the local cache</p></div>
 
 
     </div><div class="section level2">
@@ -49,34 +79,16 @@
         <dd>Check if cache exists for specific data</dd>
       </dl><dl><dt>
 
+          <code><a href="read_xml_cache.html">read_xml_cache()</a></code>
+
+        </dt>
+        <dd>Read XML data from cache</dd>
+      </dl><dl><dt>
+
           <code><a href="clear_cache.html">clear_cache()</a></code>
 
         </dt>
         <dd>Clear cache for specific data or entirely</dd>
-      </dl><dl><dt>
-
-          <code><a href="fetch_all_courses.html">fetch_all_courses()</a></code>
-
-        </dt>
-        <dd>Fetch and process courses for multiple departments in parallel</dd>
-      </dl><dl><dt>
-
-          <code><a href="fetch_department_courses.html">fetch_department_courses()</a></code>
-
-        </dt>
-        <dd>Fetch courses for a specific department</dd>
-      </dl><dl><dt>
-
-          <code><a href="fetch_departments.html">fetch_departments()</a></code>
-
-        </dt>
-        <dd>Fetch department list from Stanford ExploreCourses</dd>
-      </dl><dl><dt>
-
-          <code><a href="generate_academic_year.html">generate_academic_year()</a></code>
-
-        </dt>
-        <dd>Generate academic year string</dd>
       </dl><dl><dt>
 
           <code><a href="list_cache.html">list_cache()</a></code>
@@ -89,14 +101,32 @@
 
         </dt>
         <dd>Print method for cache list</dd>
-      </dl><dl><dt>
+      </dl></div><div class="section level2">
+      <h2 id="internal-functions">Internal Functions<a class="anchor" aria-label="anchor" href="#internal-functions"></a></h2>
 
-          <code><a href="read_xml_cache.html">read_xml_cache()</a></code>
+      <div class="section-desc"><p>Internal helper functions and utilities</p></div>
+
+
+    </div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="generate_academic_year.html">generate_academic_year()</a></code>
 
         </dt>
-        <dd>Read XML data from cache</dd>
+        <dd>Generate academic year string</dd>
+      </dl><dl><dt>
+
+          <code><a href="validate_academic_year.html">validate_academic_year()</a></code>
+
+        </dt>
+        <dd>Validate academic year format</dd>
       </dl></div>
-  </main></div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">
@@ -104,7 +134,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Built with {pkgdown}</p>
 </div>
 
     </footer></div>
