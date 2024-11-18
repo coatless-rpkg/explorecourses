@@ -2,3 +2,5 @@
 ^LICENSE\.md$
 ^explorecourses\.Rproj$
 ^data-raw$
+^\.github$
+^README\.Rmd$
