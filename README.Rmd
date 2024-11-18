@@ -68,8 +68,10 @@ stats_and_math_courses <- fetch_all_courses(c("STATS", "MATH"), year = "20232024
 
 This function is excellent for retrieving course information across multiple departments for a given academic year as it allows for parallel processing of the data.
 
-If we know the department shortcode for a specific department, we
-can use the `fetch_department_courses()` function to retrieve the courses for that department. This function does not support parallel processing and is designed for fetching courses for a single department. For example, to retrieve all courses for the "STATS" department, we can use:
+For a single department, we can use the `fetch_department_courses()` function to
+retrieve the courses for that department in any academic year. This function's
+overhead is lower as it does not support parallel processing. For example, to
+retrieve all courses for the "STATS" department, we can use:
 
 ```{r}
 #| eval: false
@@ -113,13 +115,13 @@ list_cache() # List current cache
 
 ### Parallel Processing
 
-We can speed up the process of fetching courses by using parallel processing.
-For the `fetch_all_courses()` function, we've set up parallel processing using
-the `furrr` package, which provides `purrr`'s functional interface to the
-`future` parallel processing library.  As a result, we will be able to
-download and process all courses for every department in parallel. Moreover,
-we've set up progress reporting using the `progressr` package to track the
-progress of the parallel processing.
+We can speed up the process of fetching and transforming course data
+by using parallel processing. For the `fetch_all_courses()` function, we've
+set up parallel processing using the `furrr` package, which provides `purrr`'s
+functional interface to the `future` parallel processing library.  As a result,
+we will be able to download and process all courses for every department in
+parallel. Moreover, we've set up progress reporting using the `progressr` 
+package to track the progress of the parallel processing.
 
 ```{r}
 #| eval: false
