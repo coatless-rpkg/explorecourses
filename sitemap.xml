@@ -8,9 +8,12 @@
 <url><loc>https://r-pkg.thecoatlessprofessor.com/explorecourses/reference/fetch_department_courses.html</loc></url>
 <url><loc>https://r-pkg.thecoatlessprofessor.com/explorecourses/reference/fetch_departments.html</loc></url>
 <url><loc>https://r-pkg.thecoatlessprofessor.com/explorecourses/reference/index.html</loc></url>
+<url><loc>https://r-pkg.thecoatlessprofessor.com/explorecourses/reference/init_cache_dirs.html</loc></url>
 <url><loc>https://r-pkg.thecoatlessprofessor.com/explorecourses/reference/parse_courses.html</loc></url>
+<url><loc>https://r-pkg.thecoatlessprofessor.com/explorecourses/reference/process_department.html</loc></url>
 <url><loc>https://r-pkg.thecoatlessprofessor.com/explorecourses/reference/read_cache.html</loc></url>
 <url><loc>https://r-pkg.thecoatlessprofessor.com/explorecourses/reference/schedule_ay24_25.html</loc></url>
-<url><loc>https://r-pkg.thecoatlessprofessor.com/explorecourses/reference/write_cache.html</loc></url>
+<url><loc>https://r-pkg.thecoatlessprofessor.com/explorecourses/reference/write_json_cache.html</loc></url>
+<url><loc>https://r-pkg.thecoatlessprofessor.com/explorecourses/reference/write_xml_cache.html</loc></url>
 </urlset>
 
