@@ -1,4 +1,4 @@
-# explorecourses (development version)
+# explorecourses 0.0.1
 
 ## Features
 
