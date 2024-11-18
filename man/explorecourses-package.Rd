@@ -13,6 +13,7 @@ web applications.
 Useful links:
 \itemize{
   \item \url{https://github.com/coatless-rpkg/explorecourses}
+  \item \url{https://r-pkg.thecoatlessprofessor.com/explorecourses/}
   \item Report bugs at \url{https://github.com/coatless-rpkg/explorecourses/issues}
 }
 
