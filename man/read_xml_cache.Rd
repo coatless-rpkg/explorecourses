@@ -7,15 +7,72 @@
 read_xml_cache(name, year = NULL, cache_dir = NULL)
 }
 \arguments{
-\item{name}{Department code}
+\item{name}{Character string. Department code to read from cache (e.g., "CS" for
+Computer Science).}
 
-\item{year}{Academic year (optional)}
+\item{year}{Character string. Optional academic year in YYYYYYYY format (e.g.,
+"20232024"). When provided, looks for a file with "_YYYYYYYY" suffix.}
 
-\item{cache_dir}{Base cache directory (optional)}
+\item{cache_dir}{Character string. Optional path to the cache directory. If
+\code{NULL}, uses the default cache location.}
 }
 \value{
-XML content as string or NULL if cache not found
+Returns one of:
+\itemize{
+\item An \code{xml2} document object containing the cached data if found
+\item \code{NULL} if the cache file does not exist
+}
 }
 \description{
-Read XML data from cache
+Retrieves cached XML course data for a specific department and optional academic
+year. Returns \code{NULL} if the requested cache file does not exist, allowing for
+graceful fallback to fresh API requests.
+}
+\details{
+The function looks for cache files using the following pattern:
+\verb{\{name\}\{_year\}.xml}. For example:
+\itemize{
+\item Without year: "CS.xml"
+\item With year: "CS_20232024.xml"
+}
+
+The function will:
+\itemize{
+\item Initialize/verify the cache directory
+\item Construct the appropriate filename with optional year suffix
+\item Check if the cache file exists
+\item Read and parse the XML file if found
+\item Return \code{NULL} if file not found
+}
+}
+\section{Error handling}{
+
+
+If the XML file exists but cannot be read or parsed. The error will include
+the department name, file path, and specific error message.
+}
+
+\examples{
+\dontrun{
+# Read current year's CS department data
+xml_doc <- read_xml_cache("CS")
+
+# Read specific academic year
+xml_doc <- read_xml_cache("CS", "20232024")
+
+# Handle missing cache gracefully
+xml_doc <- read_xml_cache("CS")
+if (is.null(xml_doc)) {
+  # Cache miss - fetch from API instead
+  xml_doc <- fetch_department_courses_raw("CS")
+}
+}
+
+}
+\seealso{
+\itemize{
+\item \code{\link[=write_xml_cache]{write_xml_cache()}} for writing data to cache
+\item \code{\link[=clear_cache]{clear_cache()}} for removing cached files
+\item \code{\link[=cache_exists]{cache_exists()}} for checking cache status
+}
 }

@@ -7,15 +7,135 @@
 fetch_all_courses(departments = NULL, year = NULL, cache_dir = NULL)
 }
 \arguments{
-\item{departments}{Character vector of department codes}
+\item{departments}{Character vector. Department codes to fetch (e.g., \code{c("CS", "MATH")}).
+If \code{NULL}, fetches from all available departments.}
 
-\item{year}{Academic year in format YYYYYYYY (e.g., "20232024") or NULL for current year}
+\item{year}{Character string. Optional academic year in \code{YYYYYYYY} format (e.g.,
+\code{"20232024"}). If \code{NULL}, fetches data for the current academic year.}
 
-\item{cache_dir}{Base cache directory (optional)}
+\item{cache_dir}{Character string. Optional path to cache directory. If provided,
+enables caching for all department fetches.}
 }
 \value{
-A data frame containing course information
+A tibble (data frame) containing course information with columns:
+\itemize{
+\item \code{objectID}: Unique course identifier
+\item \code{year}: Academic year
+\item \code{subject}: Department code
+\item \code{code}: Course number
+\item \code{title}: Course title
+\item \code{description}: Course description
+\item \code{units_min}: Minimum units
+\item \code{units_max}: Maximum units
+\item \code{department}: Department code of the course
+\item \code{term}: Academic term (e.g., "Autumn", "Winter")
+\item \code{term_id}: Numeric term identifier
+\item \code{section_number}: Section identifier
+\item \code{component}: Course component type (e.g., "LEC", "DIS", "LAB")
+\item \code{class_id}: Unique identifier for the section
+\item \code{current_class_size}: Current enrollment
+\item \code{max_class_size}: Maximum enrollment capacity
+\item Schedule information:
+\itemize{
+\item \code{days}: Days of the week (e.g., "Mon, Wed, Fri")
+\item \code{start_time}: Start time of the class
+\item \code{end_time}: End time of the class
+\item \code{location}: Class location/room
+}
+\item Instructor information:
+\itemize{
+\item \code{instructors}: Combined instructor information with roles
+\item \code{instructor_names}: Names of instructors
+\item \code{instructor_sunets}: SUNet IDs of instructors
+\item \code{instructor_roles}: Roles of instructors
+}
+}
+
+Returns \code{NULL} if no courses found for any department.
 }
 \description{
-Fetch and process courses for multiple departments in parallel
+Retrieves courses from multiple departments concurrently using parallel processing.
+If no departments are specified, fetches courses from all available departments.
+Provides progress updates during processing and handles errors gracefully.
+}
+\details{
+The function follows this process:
+\enumerate{
+\item Input preparation:
+\itemize{
+\item Validates year format if provided
+\item Fetches all departments if none specified
+\item Cleans department list (removes duplicates and invalid codes)
+}
+\item Parallel processing:
+\itemize{
+\item Uses \code{furrr} for parallel execution
+\item Shows progress updates via \code{progressr}
+\item Safely handles errors per department
+}
+\item Results handling:
+\itemize{
+\item Reports any department-specific errors
+\item Combines successful results
+\item Returns \code{NULL} if no valid results
+}
+}
+
+Progress updates show:
+\itemize{
+\item Current department being processed
+\item Extraction of results
+\item Final merging step
+}
+}
+\section{Error handling}{
+
+This function will trigger errors for:
+\itemize{
+\item Department-specific processing errors
+\item No courses found across all departments
+\item Year validation issues
+}
+}
+
+\examples{
+\dontrun{
+# Fetch all departments
+all_courses <- fetch_all_courses()
+
+# Fetch specific departments
+stem_courses <- fetch_all_courses(
+  departments = c("CS", "MATH", "PHYSICS")
+)
+
+# Fetch with year and caching
+courses_2023 <- fetch_all_courses(
+  year = "20232024",
+  cache_dir = "course_cache"
+)
+
+# Process results with dplyr
+library(dplyr)
+
+# Count courses per department
+dept_summary <- all_courses \%>\%
+  group_by(department) \%>\%
+  summarise(
+    n_courses = n_distinct(objectID),
+    n_sections = n()
+  )
+
+# Find large classes
+large_classes <- all_courses \%>\%
+  filter(current_class_size >= 100) \%>\%
+  select(department, code, title, current_class_size)
+}
+
+}
+\seealso{
+\itemize{
+\item \code{\link[=fetch_department_courses]{fetch_department_courses()}} for single department fetching
+\item \code{\link[=fetch_departments]{fetch_departments()}} for getting department codes
+\item \code{\link[=validate_academic_year]{validate_academic_year()}} for year format details
+}
 }

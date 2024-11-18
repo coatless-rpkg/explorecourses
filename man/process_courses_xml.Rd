@@ -2,19 +2,74 @@
 % Please edit documentation in R/process.R
 \name{process_courses_xml}
 \alias{process_courses_xml}
-\title{Process courses XML data into a data frame}
+\title{Process Stanford course XML data into a data frame}
 \usage{
 process_courses_xml(xml_doc, department)
 }
 \arguments{
-\item{xml_doc}{XML document (xml2 doc object)}
+\item{xml_doc}{An \code{xml2} document object containing Stanford course data.
+Expected to have a structure with \code{course} nodes containing section and
+schedule information.}
 
-\item{department}{Department code}
+\item{department}{Character string. Department code (e.g., \code{"CS"}) used to
+identify the department for all courses in the XML.}
 }
 \value{
-Data frame of courses with detailed schedule and instructor information
+A \link[tibble:tibble-package]{tibble} containing course information with columns:
+\itemize{
+\item \code{objectID}: Character. Unique course identifier
+\item \code{year}: Character. Academic year
+\item \code{subject}: Character. Subject code
+\item \code{code}: Character. Course number
+\item \code{title}: Character. Course title
+\item \code{description}: Character. Course description
+\item \code{units_min}: Numeric. Minimum units
+\item \code{units_max}: Numeric. Maximum units
+\item Additional columns for section, schedule, and instructor information when available
+\item \code{department}: Character. Department code
+}
+
+\code{NULL} if no courses are found (with a warning)
 }
 \description{
-Process courses XML data into a data frame
+Parses XML data containing Stanford University course information into a structured
+data frame. The function processes detailed course data including basic course
+information, section details, schedules, and instructor information.
+}
+\details{
+The function processes course data in several stages:
+\enumerate{
+\item Locates all course nodes in the XML using XPath
+\item For each course:
+\itemize{
+\item Extracts basic course information (ID, title, units, etc.)
+\item Extracts section data including schedules and instructors
+\item Joins section data with basic course information
+}
+\item Adds department code to all courses
+}
+
+Course sections may include:
+\itemize{
+\item Term information
+\item Class components (e.g., lecture, discussion)
+\item Schedule details (days, times, locations)
+\item Instructor information
+\item Enrollment data
+}
+}
+\examples{
+\dontrun{
+xml_data <- xml2::read_xml("cs_courses.xml")
+cs_courses <- process_courses_xml(xml_data, "CS")
+}
+
+}
+\seealso{
+\itemize{
+\item \code{\link[=extract_basic_course_info]{extract_basic_course_info()}} for basic course data extraction
+\item \code{\link[=extract_section_data]{extract_section_data()}} for section and schedule processing
+\item \code{\link[=fetch_department_courses]{fetch_department_courses()}} for the public interface to this functionality
+}
 }
 \keyword{internal}

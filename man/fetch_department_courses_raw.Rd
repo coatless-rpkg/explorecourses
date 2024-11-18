@@ -2,19 +2,93 @@
 % Please edit documentation in R/api.R
 \name{fetch_department_courses_raw}
 \alias{fetch_department_courses_raw}
-\title{Fetch raw course data for a department from API}
+\title{Fetch raw course data for a department from Stanford ExploreCourses API}
 \usage{
 fetch_department_courses_raw(name, year = NULL)
 }
 \arguments{
-\item{name}{Department code}
+\item{name}{Character string. Department code (e.g., \code{"CS"} for Computer Science).
+Must be a valid Stanford department code.}
 
-\item{year}{Academic year in format YYYYYYYY or NULL for current year}
+\item{year}{Character string or \code{NULL}. Academic year in format \code{YYYYYYYY}
+(e.g., \code{"20232024"}). If \code{NULL}, defaults to current academic year.
+Will be validated using \code{\link[=validate_academic_year]{validate_academic_year()}}.}
 }
 \value{
-Raw XML content
+An \link[xml2:oldclass]{xml2::xml_document} object containing the raw courses XML.
+The XML structure includes:
+\itemize{
+\item Root \code{courses} element containing multiple \code{course} elements
+\item Each \code{course} element contains:
+\itemize{
+\item Basic course information (ID, title, description)
+\item Units information
+\item Section data
+\item Schedule information
+\item Instructor details
+}
+}
 }
 \description{
-Fetch raw course data for a department from API
+Makes a direct API call to retrieve all courses for a specific department and
+academic year from Stanford's ExploreCourses system. Returns the raw XML
+response without processing.
+}
+\details{
+This function:
+\enumerate{
+\item Validates the academic year format
+\item Constructs the API URL using \code{COURSE_ENDPOINT} template
+\item Makes the API request for course data
+}
+
+The API returns all active courses for the specified department,
+including detailed information about:
+\itemize{
+\item Course metadata (title, description, units)
+\item Sections and components
+\item Meeting schedules
+\item Instructor information
+}
+}
+\section{API Endpoint}{
+
+
+Uses the \code{COURSE_ENDPOINT} template, which expands to:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{https://explorecourses.stanford.edu/search?view=xml-20140630
+  &academicYear=\{year\}
+  &q=\{name\}
+  &filter-departmentcode-\{name\}=on
+  &filter-coursestatus-Active=on
+}\if{html}{\out{</div>}}
+}
+
+\section{Filters}{
+
+
+The API request automatically includes filters for:
+\itemize{
+\item Department code match
+\item Active courses only
+}
+}
+
+\examples{
+\dontrun{
+# Get current year CS courses
+cs_xml <- fetch_department_courses_raw("CS")
+
+# Get specific year Math courses
+math_xml <- fetch_department_courses_raw("MATH", "20232024")
+}
+}
+\seealso{
+\itemize{
+\item \code{\link[=validate_academic_year]{validate_academic_year()}} for year format validation
+\item \code{\link[=make_api_request]{make_api_request()}} for the underlying API request
+\item \code{\link[=process_courses_xml]{process_courses_xml()}} for processing this XML data
+\item \code{\link[=fetch_department_courses]{fetch_department_courses()}} for the high-level interface
+}
 }
 \keyword{internal}

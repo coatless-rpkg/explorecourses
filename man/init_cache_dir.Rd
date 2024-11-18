@@ -2,19 +2,57 @@
 % Please edit documentation in R/cache.R
 \name{init_cache_dir}
 \alias{init_cache_dir}
-\title{Initialize cache directory}
+\title{Initialize cache directory for ExploreCourses data}
 \usage{
 init_cache_dir(cache_dir = NULL)
 }
 \arguments{
-\item{cache_dir}{Base cache directory (optional)}
+\item{cache_dir}{Character string. Optional path to the desired cache directory.
+If \code{NULL} (default), uses \code{'{working_directory}/explorecourses_cache'}.}
 }
 \value{
-Character string of cache directory path
+Character string containing the path to the initialized cache directory.
 }
 \description{
-Creates the necessary directory structure for caching data.
-If no cache directory is specified, creates 'explorecourses_cache'
-in the current working directory.
+Creates and initializes a directory structure for caching ExploreCourses XML data.
+This function ensures a consistent location for storing cached course and department
+data between sessions. If no cache directory is specified, it creates a default
+directory named \code{'explorecourses_cache'} in the current working directory.
+}
+\details{
+The function performs the following operations:
+\itemize{
+\item If \code{cache_dir} is \code{NULL}, constructs default path using \code{DEFAULT_CACHE_DIR}
+\item Creates the directory if it doesn't exist (including parent directories)
+\item Ensures the directory is writable
+\item Returns the full path to the created/existing directory
+}
+
+The function uses \code{fs::dir_create()} which is safe for concurrent access
+and handles nested directory creation automatically.
+}
+\section{Error handling}{
+
+
+If directory creation fails due to permissions or other filesystem errors.
+The error will include the attempted path and specific error message.
+}
+
+\examples{
+\dontrun{
+# Use default cache location
+cache_dir <- init_cache_dir()
+
+# Specify custom cache location
+cache_dir <- init_cache_dir("~/my_course_cache")
+}
+
+}
+\seealso{
+\itemize{
+\item \code{\link[=write_xml_cache]{write_xml_cache()}} for writing data to the cache
+\item \code{\link[=read_xml_cache]{read_xml_cache()}} for reading data from the cache
+\item \code{\link[=clear_cache]{clear_cache()}} for removing cached data
+}
 }
 \keyword{internal}

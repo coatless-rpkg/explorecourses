@@ -7,15 +7,79 @@
 clear_cache(name = NULL, year = NULL, cache_dir = NULL)
 }
 \arguments{
-\item{name}{Department code (optional)}
+\item{name}{Character string. Optional department code (e.g., "CS") to clear
+specific department cache files.}
 
-\item{year}{Academic year (optional)}
+\item{year}{Character string. Optional academic year in YYYYYYYY format (e.g.,
+"20232024") to clear cache files for a specific year.}
 
-\item{cache_dir}{Base cache directory (optional)}
+\item{cache_dir}{Character string. Optional path to the cache directory. If
+\code{NULL}, uses the default cache location.}
 }
 \value{
-Invisibly returns TRUE if successful, FALSE otherwise
+Invisibly returns \code{TRUE} if the operation was successful. Throws an
+error if the operation fails.
 }
 \description{
-Clear cache for specific data or entirely
+Removes cached XML files from the cache directory. Can selectively clear files
+for a specific department, academic year, or combination of both. If no filters
+are specified, clears all cached XML files.
+}
+\details{
+The function supports three clearing modes based on parameter combinations:
+\enumerate{
+\item Department-specific: When \code{name} is provided
+\itemize{
+\item Clears: \code{"{name}.xml"} or \code{"{name}_{year}.xml"} if year provided
+}
+\item Year-specific: When only \code{year} is provided
+\itemize{
+\item Clears: All files matching \code{"*_{year}.xml"}
+}
+\item Complete clear: When neither \code{name} nor \code{year} provided
+\itemize{
+\item Clears: All \code{"*.xml"} files in cache directory
+}
+}
+
+The function will:
+\itemize{
+\item Initialize/verify the cache directory
+\item Determine which files to remove based on parameters
+\item Remove matching files
+\item Display success message with number of files removed
+}
+}
+\section{Error Handling}{
+
+
+If files cannot be deleted or the cache directory cannot be accessed. The error
+will include the specific error message and cache directory path.
+}
+
+\examples{
+\dontrun{
+# Clear all cache files
+clear_cache()
+
+# Clear specific department's cache
+clear_cache(name = "CS")
+
+# Clear all departments for specific year
+clear_cache(year = "20232024")
+
+# Clear specific department and year
+clear_cache(name = "CS", year = "20232024")
+
+# Clear cache from custom location
+clear_cache(cache_dir = "~/my_course_cache")
+}
+
+}
+\seealso{
+\itemize{
+\item \code{\link[=write_xml_cache]{write_xml_cache()}} for writing data to cache
+\item \code{\link[=read_xml_cache]{read_xml_cache()}} for reading cached data
+\item \code{\link[=cache_exists]{cache_exists()}} for checking cache status
+}
 }

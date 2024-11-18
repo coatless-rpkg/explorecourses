@@ -2,17 +2,91 @@
 % Please edit documentation in R/process.R
 \name{extract_schedule_data}
 \alias{extract_schedule_data}
-\title{Extract schedule data from a section including instructors and their roles}
+\title{Extract schedule and instructor data from a section XML node}
 \usage{
 extract_schedule_data(section)
 }
 \arguments{
-\item{section}{XML node for a section}
+\item{section}{An \code{xml2} node object representing a course section. Expected to
+contain child nodes for:
+\itemize{
+\item \code{schedule} nodes, each containing:
+\itemize{
+\item \code{days}
+\item \code{startTime}
+\item \code{endTime}
+\item \code{location}
+\item Optional \code{instructor} nodes, each containing:
+\itemize{
+\item \code{name}
+\item \code{sunet}
+\item \code{role}
+}
+}
+}}
 }
 \value{
-Tibble with schedule and instructor information
+A \link[tibble:tibble-package]{tibble} containing schedule information, or
+\code{NULL} if no schedules are found. The tibble includes:
+
+Basic schedule information:
+\itemize{
+\item \code{section_id}: Character. Section identifier (from classId)
+\item \code{days}: Character. Days of the week (e.g., "MonWedFri")
+\item \code{start_time}: Character. Start time
+\item \code{end_time}: Character. End time
+\item \code{location}: Character. Meeting location
+}
+
+Instructor information (NA if no instructors):
+\itemize{
+\item \code{instructors}: Character. Combined strings in "name (role)" format
+\item \code{instructor_names}: Character. Semicolon-separated list of names
+\item \code{instructor_sunets}: Character. Semicolon-separated list of SUNet IDs
+\item \code{instructor_roles}: Character. Semicolon-separated list of roles
+}
 }
 \description{
-Extract schedule data from a section including instructors and their roles
+Processes schedule and instructor information from a Stanford course section XML node.
+This function extracts meeting times, locations, and detailed instructor information,
+combining multiple instructors' data into semicolon-separated lists.
+}
+\details{
+The function performs the following steps:
+\enumerate{
+\item Locates all schedule nodes within the section
+\item For each schedule:
+\itemize{
+\item Extracts basic schedule information (days, times, location)
+\item Processes instructor information if present
+\item Combines multiple instructors' data into consolidated strings
+}
+}
+
+Instructor information is formatted in several ways:
+\itemize{
+\item Combined format: "name (role)"
+\item Separate fields: names, SUNet IDs, and roles in semicolon-separated lists
+}
+
+If no instructors are found, instructor fields are set to \code{NA}.
+}
+\section{Error handling}{
+
+If schedule data extraction fails, the function throws an error with details.
+}
+
+\examples{
+\dontrun{
+section_node <- xml2::xml_find_first(course_node, ".//section")
+schedule_data <- extract_schedule_data(section_node)
+}
+}
+\seealso{
+\itemize{
+\item \code{\link[xml2:xml_find_all]{xml2::xml_find_all()}} for XML node selection
+\item \code{\link[xml2:xml_text]{xml2::xml_text()}} for text extraction
+\item \code{\link[=extract_section_data]{extract_section_data()}} for the parent function using this data
+}
 }
 \keyword{internal}

@@ -7,10 +7,63 @@
 \method{print}{explorecourses_cache_list}(x, ...)
 }
 \arguments{
-\item{x}{Object of class explorecourses_cache_list}
+\item{x}{An object of class \code{explorecourses_cache_list}, typically returned by
+\code{\link[=list_cache]{list_cache()}}.}
 
-\item{...}{Additional arguments passed to print}
+\item{...}{Additional arguments passed to print (currently unused).}
+}
+\value{
+Invisibly returns the input object \code{x}.
 }
 \description{
-Print method for cache list
+A custom print method for objects of class \code{explorecourses_cache_list}. Displays
+the cache contents in a formatted, color-coded layout with summary information
+and files arranged in columns.
+}
+\details{
+The print method provides a formatted display including:
+\itemize{
+\item Header with "Cache contents:" in cyan
+\item Summary information in blue:
+\itemize{
+\item Total number of cached files
+\item Academic year (if filtered)
+\item Cache directory path
+}
+\item Files listed in columns (5 files per row)
+\item Special handling for empty cache (warning message)
+}
+
+Output formatting:
+\itemize{
+\item Uses color for emphasis (cyan and blue)
+\item Properly pluralizes file counts
+\item Aligns files in 25-character width columns
+\item Uses filesystem path formatting for directory paths
+}
+}
+\note{
+This is a method for the generic \code{\link[=print]{print()}} function and is automatically called
+when printing objects of class \code{explorecourses_cache_list}. It should not typically
+be called directly.
+}
+\examples{
+\dontrun{
+# Normal usage through print generic
+cache_files <- list_cache()
+print(cache_files)  # Automatically calls this method
+
+# Or simply
+cache_files  # Auto-printing also uses this method
+
+# Example with year filter
+year_files <- list_cache(year = "20232024")
+print(year_files)
+}
+
+}
+\seealso{
+\itemize{
+\item \code{\link[=list_cache]{list_cache()}} which returns objects of class \code{explorecourses_cache_list}
+}
 }

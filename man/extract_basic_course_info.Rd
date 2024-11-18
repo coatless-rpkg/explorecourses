@@ -2,17 +2,75 @@
 % Please edit documentation in R/process.R
 \name{extract_basic_course_info}
 \alias{extract_basic_course_info}
-\title{Extract basic course information}
+\title{Extract basic course information from XML node}
 \usage{
 extract_basic_course_info(course)
 }
 \arguments{
-\item{course}{XML node for a course}
+\item{course}{An \code{xml2} node object representing a single course. Expected to
+contain child nodes for:
+\itemize{
+\item \code{courseId}
+\item \code{year}
+\item \code{subject}
+\item \code{code}
+\item \code{title}
+\item \code{description}
+\item \code{unitsMin}
+\item \code{unitsMax}
+}}
 }
 \value{
-Tibble with basic course information
+A \link[tibble:tibble-package]{tibble} with one row containing:
+\itemize{
+\item \code{objectID}: Character. Unique course identifier from \code{courseId}
+\item \code{year}: Character. Academic year
+\item \code{subject}: Character. Subject code (e.g., "CS")
+\item \code{code}: Character. Course number (e.g., "106A")
+\item \code{title}: Character. Full course title
+\item \code{description}: Character. Course description text
+\item \code{units_min}: Numeric. Minimum units for the course
+\item \code{units_max}: Numeric. Maximum units for the course
+}
 }
 \description{
-Extract basic course information
+Extracts fundamental course information from a Stanford course XML node into a
+structured tibble. This function handles the core course attributes that are
+common to all courses, independent of sections or schedules.
+}
+\details{
+The function extracts the following course attributes using XPath:
+\itemize{
+\item Course ID (unique identifier)
+\item Academic year
+\item Subject code
+\item Course code (number)
+\item Course title
+\item Course description
+\item Unit range (minimum and maximum)
+}
+
+All text fields are extracted using \code{xml_find_first()} to get the first matching
+node, with unit values converted to numeric format.
+}
+\section{Error Handling}{
+
+The function uses \code{tryCatch} to handle potential XML parsing errors. If any
+required node is missing or cannot be parsed, it throws an error with details
+about the failure.
+}
+
+\examples{
+\dontrun{
+course_node <- xml2::xml_find_first(xml_doc, "//course")
+basic_info <- extract_basic_course_info(course_node)
+}
+}
+\seealso{
+\itemize{
+\item \code{\link[xml2:xml_find_all]{xml2::xml_find_first()}} for the XML node selection
+\item \code{\link[xml2:xml_text]{xml2::xml_text()}} for text extraction
+\item \code{\link[=process_courses_xml]{process_courses_xml()}} for the parent function using this extraction
+}
 }
 \keyword{internal}

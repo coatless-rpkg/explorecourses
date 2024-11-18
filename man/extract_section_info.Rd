@@ -2,19 +2,74 @@
 % Please edit documentation in R/process.R
 \name{extract_section_info}
 \alias{extract_section_info}
-\title{Extract section information}
+\title{Extract basic section information from XML node}
 \usage{
 extract_section_info(section, course_id)
 }
 \arguments{
-\item{section}{XML node for a section}
+\item{section}{An \code{xml2} node object representing a single course section.
+Expected to contain child nodes for:
+\itemize{
+\item \code{term}
+\item \code{termId}
+\item \code{sectionNumber}
+\item \code{component}
+\item \code{classId}
+\item \code{currentClassSize}
+\item \code{maxClassSize}
+}}
 
-\item{course_id}{Course ID for joining}
+\item{course_id}{Character string. The parent course identifier used to link
+section data back to the course.}
 }
 \value{
-Tibble with section information
+A \link[tibble:tibble-package]{tibble} with one row containing:
+\itemize{
+\item \code{objectID}: Character. Course identifier (from \code{course_id})
+\item \code{term}: Character. Academic term (e.g., "Autumn", "Winter")
+\item \code{term_id}: Character. Unique term identifier
+\item \code{section_number}: Character. Section number within the course
+\item \code{component}: Character. Section type (e.g., "LEC", "DIS", "LAB")
+\item \code{class_id}: Character. Unique identifier for this section
+\item \code{current_class_size}: Numeric. Current number of enrolled students
+\item \code{max_class_size}: Numeric. Maximum enrollment capacity
+}
 }
 \description{
-Extract section information
+Extracts fundamental section-level information from a Stanford course section XML node
+into a structured tibble. This function processes the core attributes of a course
+section, such as term information, component type, and enrollment data.
+}
+\details{
+The function extracts the following section attributes using XPath:
+\itemize{
+\item Term details (term name and ID)
+\item Section identification (section number, class ID)
+\item Component type (e.g., lecture, discussion)
+\item Enrollment information (current and maximum class sizes)
+}
+
+All text fields are extracted using \code{xml_find_first()} to get the first matching
+node. Enrollment numbers are converted to numeric format.
+}
+\section{Error Handling}{
+
+The function assumes all required nodes are present in the XML. Missing nodes
+will trigger an error through the tryCatch block.
+}
+
+\examples{
+\dontrun{
+section_node <- xml2::xml_find_first(course_node, ".//section")
+course_id <- "CS106A-2023-2024"
+section_info <- extract_section_info(section_node, course_id)
+}
+}
+\seealso{
+\itemize{
+\item \code{\link[xml2:xml_find_all]{xml2::xml_find_first()}} for XML node selection
+\item \code{\link[xml2:xml_text]{xml2::xml_text()}} for text extraction
+\item \code{\link[=extract_section_data]{extract_section_data()}} for the parent function using this extraction
+}
 }
 \keyword{internal}

@@ -7,13 +7,85 @@
 list_cache(year = NULL, cache_dir = NULL)
 }
 \arguments{
-\item{year}{Academic year (optional)}
+\item{year}{Character string. Optional academic year in \code{YYYYYYYY} format (e.g.,
+\code{"20232024"}) to list only cache files from a specific year.}
 
-\item{cache_dir}{Base cache directory (optional)}
+\item{cache_dir}{Character string. Optional path to the cache directory. If
+\code{NULL}, uses the default cache location.}
 }
 \value{
-Character vector of cached file names (without extensions)
+A character vector with class \code{explorecourses_cache_list} containing:
+\itemize{
+\item File names without the .xml extension
+\item Additional attributes:
+\itemize{
+\item \code{total}: Number of files found
+\item \code{path}: Full path to cache directory
+\item \code{year}: Academic year filter (if provided)
+}
+}
+
+Returns empty character vector (\code{character(0)}) if no files found.
 }
 \description{
-List cached files
+Lists all cached XML files in the cache directory, optionally filtered by
+academic year. Returns a character vector of filenames without extensions,
+with additional metadata attached as attributes.
+}
+\details{
+The function supports two listing modes:
+\enumerate{
+\item Year-specific: When \code{year} is provided
+\itemize{
+\item Lists: All files matching \code{"*_{year}.xml"}
+\item Validates year format before searching
+}
+\item Complete listing: When no \code{year} provided
+\itemize{
+\item Lists: All \code{"*.xml"} files in cache directory
+}
+}
+
+File names in the returned vector:
+\itemize{
+\item Have the \code{.xml} extension removed
+\item Retain any year suffixes (e.g., \code{"CS_20232024"})
+\item Are returned in the order found by the filesystem
+}
+}
+\section{Error Handling}{
+
+
+If the cache directory cannot be accessed or listed. The error will include
+the specific error message and cache directory path.
+}
+
+\examples{
+\dontrun{
+# List all cached files
+files <- list_cache()
+print(files)  # Uses special print method for explorecourses_cache_list
+
+# Get total number of cached files
+total <- attr(files, "total")
+
+# List files for specific year
+files_2023 <- list_cache(year = "20232024")
+
+# List files in custom cache directory
+files <- list_cache(cache_dir = "~/my_course_cache")
+
+# Check if any files were found
+if (length(files) > 0) {
+  # Process files
+}
+}
+
+}
+\seealso{
+\itemize{
+\item \code{\link[=cache_exists]{cache_exists()}} for checking specific cache files
+\item \code{\link[=clear_cache]{clear_cache()}} for removing cached files
+\item \code{\link[=read_xml_cache]{read_xml_cache()}} for reading cached data
+}
 }

@@ -2,17 +2,74 @@
 % Please edit documentation in R/api.R
 \name{make_api_request}
 \alias{make_api_request}
-\title{Make API request to ExploreCourses endpoint}
+\title{Make HTTP request to Stanford ExploreCourses API endpoint}
 \usage{
 make_api_request(url)
 }
 \arguments{
-\item{url}{API endpoint URL}
+\item{url}{Character string. Complete URL for the ExploreCourses API endpoint.
+Expected to be one of:
+\itemize{
+\item Departments endpoint: \code{DEPARTMENTS_ENDPOINT}
+\item Course search endpoint: \code{COURSE_ENDPOINT} with parameters
+}}
 }
 \value{
-Raw response content or error
+An \link[xml2:oldclass]{xml2::xml_document} object containing the parsed API response.
+The structure depends on the specific endpoint called.
 }
 \description{
-Make API request to ExploreCourses endpoint
+Makes an HTTP GET request to a Stanford ExploreCourses API endpoint and returns
+the response as an XML document. Handles response validation and error cases.
+}
+\details{
+The function performs these steps:
+\enumerate{
+\item Makes HTTP GET request using \code{httr2}
+\item Validates HTTP response status (must be 200)
+\item Converts response body to XML document
+}
+
+Error handling covers:
+\itemize{
+\item Network/connection failures
+\item Non-200 HTTP status codes
+\item XML parsing errors
+}
+
+All errors are converted to standardized error messages with
+endpoint information and original error details.
+}
+\section{Rate Limiting}{
+
+The ExploreCourses API does not currently require authentication or impose
+rate limits, but considerate usage is recommended.
+}
+
+\section{Response Format}{
+
+The API returns XML data in the ExploreCourses schema version 20140630.
+The exact structure varies by endpoint:
+\itemize{
+\item Departments: List of schools containing departments
+\item Courses: List of courses with sections and schedules
+}
+}
+
+\examples{
+\dontrun{
+# Get departments list
+deps_xml <- make_api_request(DEPARTMENTS_ENDPOINT)
+
+# Get courses for CS department
+courses_url <- sprintf(COURSE_ENDPOINT, year = "20232024", name = "CS")
+cs_xml <- make_api_request(courses_url)
+}
+}
+\seealso{
+\itemize{
+\item \code{\link[httr2:request]{httr2::request()}} for the underlying HTTP request functionality
+\item \code{\link[xml2:read_xml]{xml2::read_xml()}} for XML parsing
+}
 }
 \keyword{internal}

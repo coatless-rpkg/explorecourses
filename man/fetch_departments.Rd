@@ -7,11 +7,78 @@
 fetch_departments(cache_dir = NULL)
 }
 \arguments{
-\item{cache_dir}{Base cache directory (optional)}
+\item{cache_dir}{Character string. Optional path to cache directory. If provided,
+the function will:
+\itemize{
+\item Try to read existing department data from cache
+\item Cache fresh API data when cache miss occurs
+If \code{NULL}, always fetches fresh data from the API.
+}}
 }
 \value{
-A data frame containing department information
+A tibble (data frame) containing department information with columns:
+\itemize{
+\item \code{name}: Department code (e.g., \code{"CS"})
+\item \code{longname}: Full department name (e.g., \code{"Computer Science"})
+\item \code{school}: School name (e.g., \code{"School of Engineering"})
+}
 }
 \description{
-Fetch department list from Stanford ExploreCourses
+Retrieves a list of all departments from Stanford ExploreCourses, either from
+cache if available or from the API. The function handles caching automatically
+when a cache directory is specified.
+}
+\details{
+The function follows this process:
+\enumerate{
+\item If \code{cache_dir} provided:
+\itemize{
+\item Attempts to read cached department data
+\item On cache miss, proceeds to API fetch
+}
+\item API fetch (when needed):
+\itemize{
+\item Requests department list from ExploreCourses API
+\item Caches response if \code{cache_dir} provided
+}
+\item Data processing:
+\itemize{
+\item Parses XML response into structured data frame
+\item Organizes departments by school
+}
+}
+}
+\section{Error Handling}{
+
+\itemize{
+\item If API request fails or returns invalid data. Includes specific error message
+and any relevant details.
+\item If cache operations fail when \code{cache_dir} is provided. Includes cache path
+and specific error message.
+}
+}
+
+\examples{
+\dontrun{
+# Fetch fresh data from API (no caching)
+departments <- fetch_departments()
+
+# Fetch with caching enabled
+departments <- fetch_departments(cache_dir = "course_cache")
+
+# Example data processing
+# Find all engineering departments
+eng_deps <- subset(departments, school == "School of Engineering")
+
+# Get department codes
+dept_codes <- departments$name
+}
+
+}
+\seealso{
+\itemize{
+\item \code{\link[=fetch_department_courses]{fetch_department_courses()}} for fetching courses for a specific department
+\item \code{\link[=process_departments_xml]{process_departments_xml()}} for details on XML processing
+\item \code{\link[=read_xml_cache]{read_xml_cache()}} and \code{\link[=write_xml_cache]{write_xml_cache()}} for cache operations
+}
 }

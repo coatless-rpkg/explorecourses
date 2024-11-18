@@ -2,14 +2,62 @@
 % Please edit documentation in R/api.R
 \name{fetch_departments_raw}
 \alias{fetch_departments_raw}
-\title{Fetch raw department data from API}
+\title{Fetch raw department list from Stanford ExploreCourses API}
 \usage{
 fetch_departments_raw()
 }
 \value{
-Raw XML content
+An \link[xml2:oldclass]{xml2::xml_document} object containing the raw departments XML.
+
+The XML structure includes:
+\itemize{
+\item Root \code{schools} element
+\item Multiple \code{school} elements, each containing:
+\itemize{
+\item \verb{@name} attribute: School name
+\item Multiple \code{department} elements, each containing:
+\itemize{
+\item \verb{@name} attribute: Department code
+\item \verb{@longname} attribute: Full department name
+}
+}
+}
 }
 \description{
-Fetch raw department data from API
+Makes a direct API call to retrieve the complete list of Stanford departments
+and their associated schools. Returns the raw XML response without any
+processing or transformation.
+}
+\details{
+This function is a thin wrapper around \code{\link[=make_api_request]{make_api_request()}} specifically for
+the departments endpoint. It retrieves the current academic year's department
+structure including:
+\itemize{
+\item Schools
+\item Departments within each school
+\item Department codes and full names
+}
+
+The department list is relatively static, changing only when Stanford's
+organizational structure changes.
+}
+\section{API Endpoint}{
+
+Uses the \code{DEPARTMENTS_ENDPOINT} constant, which points to:
+\verb{https://explorecourses.stanford.edu/?view=xml-20140630}
+}
+
+\examples{
+\dontrun{
+xml_doc <- fetch_departments_raw()
+schools <- xml2::xml_find_all(xml_doc, "//school")
+}
+}
+\seealso{
+\itemize{
+\item \code{\link[=make_api_request]{make_api_request()}} for the underlying API request functionality
+\item \code{\link[=process_departments_xml]{process_departments_xml()}} for processing this XML data
+\item \code{\link[=fetch_departments]{fetch_departments()}} for the high-level interface
+}
 }
 \keyword{internal}

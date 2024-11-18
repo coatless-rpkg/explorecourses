@@ -7,18 +7,67 @@
 write_xml_cache(xml_doc, name, year = NULL, cache_dir = NULL)
 }
 \arguments{
-\item{xml_doc}{XML document (xml2 doc object)}
+\item{xml_doc}{An \code{xml2} document object containing course or department data
+to be cached.}
 
-\item{name}{Base filename (e.g., department code)}
+\item{name}{Character string. Base filename for the cache file, typically a
+department code (e.g., "CS" for Computer Science).}
 
-\item{year}{Optional academic year for filename suffix}
+\item{year}{Character string. Optional academic year in YYYYYYYY format (e.g.,
+"20232024"). When provided, appends "_YYYYYYYY" to the filename.}
 
-\item{cache_dir}{Base cache directory (optional)}
+\item{cache_dir}{Character string. Optional path to the cache directory. If
+\code{NULL}, uses the default cache location.}
 }
 \value{
-Invisibly returns the cache path
+Invisibly returns the full path to the created cache file as a character
+string.
 }
 \description{
-Write XML data to cache
+Writes XML course data to the cache directory. The function handles the creation
+of appropriately named cache files based on department code and optional academic
+year. Cache files are stored as XML documents with the extension \code{.xml}.
+}
+\details{
+The function constructs the cache filename using the following pattern:
+\verb{\{name\}\{_year\}.xml}. For example:
+\itemize{
+\item Without year: "CS.xml"
+\item With year: "CS_20232024.xml"
+}
+
+The function will:
+\itemize{
+\item Initialize/create the cache directory if needed
+\item Construct the appropriate filename with optional year suffix
+\item Write the XML document to the cache location
+\item Handle any errors during the write process
+}
+}
+\section{Error Handling}{
+
+
+If the XML document cannot be written to the cache location. The error will
+include the department name, attempted file path, and specific error message.
+}
+
+\examples{
+\dontrun{
+# Cache current year's CS department data
+xml_doc <- fetch_department_courses_raw("CS")
+write_xml_cache(xml_doc, "CS")
+
+# Cache specific academic year
+xml_doc <- fetch_department_courses_raw("CS", "20232024")
+write_xml_cache(xml_doc, "CS", "20232024")
+}
+
+}
+\seealso{
+\itemize{
+\item \code{\link[=init_cache_dir]{init_cache_dir()}} for cache directory initialization
+\item \code{\link[=read_xml_cache]{read_xml_cache()}} for reading cached XML data
+\item \code{\link[=clear_cache]{clear_cache()}} for removing cached files
+}
 }
 \keyword{internal}

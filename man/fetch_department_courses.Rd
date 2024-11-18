@@ -7,15 +7,141 @@
 fetch_department_courses(name, year = NULL, cache_dir = NULL)
 }
 \arguments{
-\item{name}{Department code (single string)}
+\item{name}{Character string. Department code (e.g., \code{"CS"}). Must be a single,
+non-empty string. If multiple codes provided, only the first is used.}
 
-\item{year}{Academic year in format YYYYYYYY (e.g., "20232024") or NULL for current year}
+\item{year}{Character string. Optional academic year in \code{YYYYYYYY} format (e.g.,
+\code{"20232024"}). If \code{NULL}, fetches data for the current academic year.}
 
-\item{cache_dir}{Base cache directory (optional)}
+\item{cache_dir}{Character string. Optional path to cache directory. If provided,
+the function will:
+\itemize{
+\item Try to read existing course data from cache
+\item Cache fresh API data when cache miss occurs
+If \code{NULL}, always fetches fresh data from the API.
+}}
 }
 \value{
-Data frame of parsed course information
+A tibble (data frame) containing course information with columns:
+\itemize{
+\item \code{objectID}: Unique course identifier
+\item \code{year}: Academic year
+\item \code{subject}: Department code
+\item \code{code}: Course number
+\item \code{title}: Course title
+\item \code{description}: Course description
+\item \code{units_min}: Minimum units
+\item \code{units_max}: Maximum units
+\item \code{department}: Department code of the course
+\item \code{term}: Academic term (e.g., "Autumn", "Winter")
+\item \code{term_id}: Numeric term identifier
+\item \code{section_number}: Section identifier
+\item \code{component}: Course component type (e.g., "LEC", "DIS", "LAB")
+\item \code{class_id}: Unique identifier for the section
+\item \code{current_class_size}: Current enrollment
+\item \code{max_class_size}: Maximum enrollment capacity
+\item Schedule information:
+\itemize{
+\item \code{days}: Days of the week (e.g., "Mon, Wed, Fri")
+\item \code{start_time}: Start time of the class
+\item \code{end_time}: End time of the class
+\item \code{location}: Class location/room
+}
+\item Instructor information:
+\itemize{
+\item \code{instructors}: Combined instructor information with roles
+\item \code{instructor_names}: Names of instructors
+\item \code{instructor_sunets}: SUNet IDs of instructors
+\item \code{instructor_roles}: Roles of instructors
+}
+}
+
+Returns \code{NULL} if no courses found.
 }
 \description{
-Fetch courses for a specific department
+Retrieves all courses for a specified department from Stanford ExploreCourses,
+either from cache if available or from the API. Supports fetching courses for
+specific academic years and handles caching automatically when a cache directory
+is specified.
+}
+\details{
+The function follows this process:
+\enumerate{
+\item Input validation:
+\itemize{
+\item Ensures single department code
+\item Validates code format and content
+}
+\item Data retrieval:
+\itemize{
+\item Checks cache if \code{cache_dir} provided
+\item Fetches from API on cache miss
+\item Caches new data if applicable
+}
+\item Data processing:
+\itemize{
+\item Parses XML into structured format
+\item Validates course data exists
+}
+}
+}
+\section{Warning handlers}{
+
+
+Warning message will be shown if:
+\itemize{
+\item Multiple department codes provided
+\item No courses found for department
+}
+}
+
+\section{Error Handling}{
+
+\itemize{
+\item Invalid department code (empty or non-string)
+\item API fetch failures
+\item Cache operation failures
+\item XML processing errors
+}
+}
+
+\examples{
+\dontrun{
+# Fetch current year's CS courses
+cs_courses <- fetch_department_courses("CS")
+
+# Fetch specific academic year
+cs_courses_2023 <- fetch_department_courses(
+  name = "CS",
+  year = "20232024"
+)
+
+# Fetch with caching enabled
+cs_courses <- fetch_department_courses(
+  name = "CS",
+  cache_dir = "course_cache"
+)
+
+# Handle empty results
+courses <- fetch_department_courses("DEPT")
+if (!is.null(courses)) {
+  # Process courses
+}
+
+# Find all courses taught by a specific instructor
+cs_courses \%>\%
+  dplyr::filter(grepl("Smith", instructor_names))
+
+# Get all lecture sections
+lectures <- cs_courses \%>\%
+  dplyr::filter(component == "LEC")
+}
+
+}
+\seealso{
+\itemize{
+\item \code{\link[=fetch_departments]{fetch_departments()}} for getting list of valid department codes
+\item \code{\link[=fetch_all_courses]{fetch_all_courses()}} for fetching courses from multiple departments
+\item \code{\link[=validate_academic_year]{validate_academic_year()}} for year format details
+}
 }

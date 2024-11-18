@@ -2,19 +2,47 @@
 % Please edit documentation in R/utils.R
 \name{generate_academic_year}
 \alias{generate_academic_year}
-\title{Generate academic year string}
+\title{Generate academic year string from start year}
 \usage{
 generate_academic_year(start_year)
 }
 \arguments{
-\item{start_year}{Starting year as YYYY}
+\item{start_year}{Numeric or character. Starting year as \code{YYYY} (e.g., \code{2023}).
+If provided as character, will be converted to integer.}
 }
 \value{
-Academic year string in YYYYYYYY format
+Character string. Eight-digit academic year in format \code{YYYYYYYY} where
+the first four digits are the start year and the last four digits are
+the start year plus one.
 }
 \description{
-Generate academic year string
+Converts a single starting year into a Stanford academic year format by combining
+it with the following year. Takes a year (\code{YYYY}) and returns the full academic
+year string (\code{YYYYYYYY}).
+}
+\details{
+The function:
+\enumerate{
+\item Converts the input year to an integer
+\item Creates an 8-digit string by combining the start year with (start year + 1)
+\item Ensures proper zero-padding of years using \code{sprintf()}
+}
+
+For example:
+\itemize{
+\item 2023 -> "20232024"
+\item 2024 -> "20242025"
+}
 }
 \examples{
 generate_academic_year(2023)  # Returns "20232024"
+generate_academic_year(2024)  # Returns "20242025"
+generate_academic_year("2025")  # Returns "20252026"
+
+}
+\seealso{
+\itemize{
+\item \code{\link[=validate_academic_year]{validate_academic_year()}} for validating academic year strings
+\item \code{\link[=fetch_department_courses]{fetch_department_courses()}} for using academic years in course queries
+}
 }

@@ -2,17 +2,63 @@
 % Please edit documentation in R/process.R
 \name{process_departments_xml}
 \alias{process_departments_xml}
-\title{Process departments XML data into a data frame}
+\title{Process Stanford departments XML data into a data frame}
 \usage{
 process_departments_xml(xml_doc)
 }
 \arguments{
-\item{xml_doc}{XML document (xml2 doc object)}
+\item{xml_doc}{An \code{xml2} document object containing Stanford departments data.
+Expected to have a structure with \code{school} nodes containing \code{department} nodes.}
 }
 \value{
-Data frame of departments
+A \link[tibble:tibble-package]{tibble} with three columns:
+\itemize{
+\item \code{name}: Character. Department code/abbreviation (e.g., "CS")
+\item \code{longname}: Character. Full department name (e.g., "Computer Science")
+\item \code{school}: Character. Name of the school containing the department
+}
 }
 \description{
-Process departments XML data into a data frame
+Parses XML data containing Stanford University department information into a structured
+data frame. The function processes hierarchical XML data where departments are nested
+within schools, extracting department codes, full names, and their associated schools.
+}
+\details{
+The function performs the following steps:
+\enumerate{
+\item Locates all school nodes in the XML using XPath
+\item For each school, extracts its name and finds all department nodes
+\item For each department, extracts:
+\itemize{
+\item Department code (\code{name})
+\item Full department name (\code{longname})
+\item Associated school name (\code{school})
+}
+\item Combines all departments into a single data frame
+}
+
+The function includes error handling for:
+\itemize{
+\item Missing school data
+\item Missing department data
+\item XML parsing errors
+}
+}
+\section{Error handling}{
+
+If no schools or departments are found in the XML, an error is thrown.
+}
+
+\examples{
+\dontrun{
+xml_data <- xml2::read_xml("departments.xml")
+departments_df <- process_departments_xml(xml_data)
+}
+}
+\seealso{
+\itemize{
+\item \code{\link[xml2:xml_find_all]{xml2::xml_find_all()}} for the XML parsing functionality
+\item \code{\link[=fetch_departments]{fetch_departments()}} for the public interface to this functionality
+}
 }
 \keyword{internal}

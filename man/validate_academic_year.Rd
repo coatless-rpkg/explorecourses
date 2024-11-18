@@ -2,17 +2,82 @@
 % Please edit documentation in R/utils.R
 \name{validate_academic_year}
 \alias{validate_academic_year}
-\title{Validate academic year format}
+\title{Validate Stanford academic year format}
 \usage{
 validate_academic_year(year)
 }
 \arguments{
-\item{year}{Academic year in format YYYYYYYY or NULL}
+\item{year}{Character string or NULL. Academic year to validate:
+\itemize{
+\item If \code{character}: Must be in format \code{YYYYYYYY} (e.g., \code{"20232024"})
+\item If \code{NULL}: Represents current academic year
+}}
 }
 \value{
-Validated year string or error
+Character string. Returns:
+\itemize{
+\item Empty string (\code{""}) if input is \code{NULL}
+\item Original year string if validation passes
+}
 }
 \description{
-Validate academic year format
+Validates that an academic year string meets Stanford's format requirements and
+constraints. Checks both the string format and the logical relationship between
+start and end years. Also enforces historical data boundaries.
+}
+\details{
+The function performs several validation checks:
+\enumerate{
+\item Format validation:
+\itemize{
+\item Must be exactly 8 digits (YYYYYYYY)
+\item Must contain only numeric characters
+}
+\item Logical validation:
+\itemize{
+\item End year must be exactly one year after start year
+\item Start year must not be before 1913 (earliest course data)
+}
+\item Special handling:
+\itemize{
+\item NULL input returns "" (representing current academic year)
+}
+}
+
+The function provides detailed error messages when validation fails,
+indicating the specific validation rule that was violated.
+}
+\section{Error Messages}{
+
+
+The function may throw errors for:
+\itemize{
+\item Invalid format (not 8 digits)
+\item Invalid year progression (end year != start year + 1)
+\item Start year before 1913
+}
+
+Each error includes:
+\itemize{
+\item Description of the problem
+\item Expected format/rules
+\item Received invalid value
+}
+}
+
+\examples{
+\dontrun{
+validate_academic_year("20232024")  # Returns "20232024"
+validate_academic_year(NULL)        # Returns ""
+validate_academic_year("2023")      # Error: Invalid format
+validate_academic_year("20232025")  # Error: Invalid year progression
+validate_academic_year("19121913")  # Error: Start year too early
+}
+}
+\seealso{
+\itemize{
+\item \code{\link[=generate_academic_year]{generate_academic_year()}} for creating valid academic year strings
+\item \code{\link[=fetch_department_courses]{fetch_department_courses()}} for using validated years in queries
+}
 }
 \keyword{internal}
