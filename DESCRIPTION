@@ -1,0 +1,32 @@
+Package: explorecourses
+Title: Stanford Course Explorer API
+Version: 0.0.0.9000
+Authors@R: 
+    person("James Joseph", "Balamuta", email = "james.balamuta@gmail.com", 
+           role = c("aut", "cre", "cph"), 
+           comment = c(ORCID = "0000-0003-2826-8458"))
+Description: Fetches and processes Stanford course data from ExploreCourses API.
+URL: https://github.com/coatless-rpkg/explorecourses
+BugReports: https://github.com/coatless-rpkg/explorecourses/issues
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Imports: 
+    httr2,
+    jsonlite,
+    xml2,
+    dplyr,
+    fs,
+    glue,
+    purrr,
+    readr,
+    tibble
+Collate: 
+    'cache.R'
+    'constants.R'
+    'explorecourses-package.R'
+    'fetch.R'
+Depends: 
+    R (>= 2.10)
+LazyData: true
